@@ -37,9 +37,15 @@ public class Pathfinder : MonoBehaviour
     {
         startNode = gridManager.Grid[startCoordinates];
         destinationNode = gridManager.Grid[destinationCoordinates];
+        
+        GetNewPath();
+    }
 
+    public List<Node> GetNewPath()
+    {
+        gridManager.ResetNodes();
         BreathFirstSearch();
-        BuildPath();
+        return BuildPath();
     }
 
     void ExploringNeighbors()
@@ -74,6 +80,9 @@ public class Pathfinder : MonoBehaviour
 
     void BreathFirstSearch()
     {
+        frontier.Clear();
+        reached.Clear();
+
         bool isRunning = true;
 
         frontier.Enqueue(startNode);
@@ -91,7 +100,7 @@ public class Pathfinder : MonoBehaviour
             }
         }
     }
-
+    //Builds the path from the search tree
     List<Node> BuildPath()
     {
         List<Node> path = new List<Node>();
@@ -110,6 +119,26 @@ public class Pathfinder : MonoBehaviour
         path.Reverse();
 
         return path;
+    }
+    //Checks if it the path is blocked when a node will be blocked 
+    public bool WillBlockPath(Vector2Int coordinates)
+    {
+        if(grid.ContainsKey(coordinates))
+        {
+            bool previousState = grid[coordinates].isWalkable;
+
+            grid[coordinates].isWalkable = false;
+            List<Node> newPath = GetNewPath();
+            grid[coordinates].isWalkable = previousState;
+            //Was not able to fin a path.
+            if(newPath.Count <= 1)
+            {
+                GetNewPath();
+                return true;
+            }
+
+        }
+        return false;
     }
 
 }
