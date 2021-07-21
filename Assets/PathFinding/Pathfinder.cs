@@ -5,7 +5,10 @@ using UnityEngine;
 public class Pathfinder : MonoBehaviour
 {
     [SerializeField] Vector2Int startCoordinates;
+    public Vector2Int StartCoordinates { get { return startCoordinates; }}
+
     [SerializeField] Vector2Int destinationCoordinates;
+    public Vector2Int DestinationCoordinates { get { return destinationCoordinates; }}
 
     Node startNode;
     Node destinationNode;
@@ -29,15 +32,15 @@ public class Pathfinder : MonoBehaviour
         if(gridManager != null)
         {
             grid = gridManager.Grid;
+            startNode = grid[startCoordinates];
+            destinationNode = grid[destinationCoordinates];
+
         }
 
     }
 
     void Start()
     {
-        startNode = gridManager.Grid[startCoordinates];
-        destinationNode = gridManager.Grid[destinationCoordinates];
-        
         GetNewPath();
     }
 
@@ -77,9 +80,12 @@ public class Pathfinder : MonoBehaviour
             }
         }
     }
-
+    //Creates search tree.
     void BreathFirstSearch()
     {
+        startNode.isWalkable = true;
+        destinationNode.isWalkable = true;
+        
         frontier.Clear();
         reached.Clear();
 
@@ -87,13 +93,14 @@ public class Pathfinder : MonoBehaviour
 
         frontier.Enqueue(startNode);
         reached.Add(startCoordinates, startNode);
-
+        //While there is no more neighbors to explore or we arrived to the destination.
         while(frontier.Count > 0 && isRunning)
         {
             currentSearchNode = frontier.Dequeue();
             currentSearchNode.isExplored = true;
             //Find neighbors from current Search Node.
             ExploringNeighbors();
+            //If we arrive to the destination node we stop searching
             if(currentSearchNode.coordinates == destinationCoordinates)
             {
                 isRunning = false;
@@ -120,7 +127,7 @@ public class Pathfinder : MonoBehaviour
 
         return path;
     }
-    //Checks if it the path is blocked when a node will be blocked 
+    //Checks if it the path is blocked when a node will be blocked. 
     public bool WillBlockPath(Vector2Int coordinates)
     {
         if(grid.ContainsKey(coordinates))
