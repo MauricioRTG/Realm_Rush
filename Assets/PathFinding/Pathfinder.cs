@@ -43,11 +43,16 @@ public class Pathfinder : MonoBehaviour
     {
         GetNewPath();
     }
-
+    //Builds paths from the start cooridinates we provided in the inspector.
     public List<Node> GetNewPath()
     {
+        return GetNewPath(startCoordinates);
+    }
+    //Builds paths from the current position of the enemy
+    public List<Node> GetNewPath(Vector2Int coordinates)
+    {
         gridManager.ResetNodes();
-        BreathFirstSearch();
+        BreathFirstSearch(coordinates);
         return BuildPath();
     }
 
@@ -81,7 +86,7 @@ public class Pathfinder : MonoBehaviour
         }
     }
     //Creates search tree.
-    void BreathFirstSearch()
+    void BreathFirstSearch(Vector2Int coordinates)
     {
         startNode.isWalkable = true;
         destinationNode.isWalkable = true;
@@ -91,8 +96,8 @@ public class Pathfinder : MonoBehaviour
 
         bool isRunning = true;
 
-        frontier.Enqueue(startNode);
-        reached.Add(startCoordinates, startNode);
+        frontier.Enqueue(grid[coordinates]);
+        reached.Add(coordinates, grid[coordinates]);
         //While there is no more neighbors to explore or we arrived to the destination.
         while(frontier.Count > 0 && isRunning)
         {
@@ -150,7 +155,7 @@ public class Pathfinder : MonoBehaviour
 
     public void NotifyReceivers()
     {
-        BroadcastMessage("RecalculatePath", SendMessageOptions.DontRequireReceiver);
+        BroadcastMessage("RecalculatePath", false,  SendMessageOptions.DontRequireReceiver);
     }
 
 }
